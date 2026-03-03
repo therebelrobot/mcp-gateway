@@ -1,0 +1,12 @@
+# .gitignore
+logs/
+data/
+.env
+*.log
+.DS_Store
+node_modules/
+.vscode/
+.idea/
+*.swp
+*.swo
+*.pid
