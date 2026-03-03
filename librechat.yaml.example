@@ -1,0 +1,82 @@
+# LibreChat Configuration Example for MCP Gateway
+# This file shows how to connect LibreChat to the MCP Gateway servers
+
+# MCP Servers configuration
+mcpServers:
+  # Brave Search MCP Server
+  brave-search:
+    type: sse
+    url: "http://mcp-gateway:8003/sse"
+    env:
+      BRAVE_API_KEY: "${BRAVE_API_KEY}"
+  
+  # EMQX MCP Server
+  emqx:
+    type: sse
+    url: "http://mcp-gateway:8004/sse"
+    env:
+      EMQX_API_URL: "${EMQX_API_URL}"
+      EMQX_API_KEY: "${EMQX_API_KEY}"
+      EMQX_API_SECRET: "${EMQX_API_SECRET}"
+  
+  # Filesystem MCP Server
+  filesystem:
+    type: sse
+    url: "http://mcp-gateway:8005/sse"
+    serverInstructions: |
+      This MCP server provides access to the filesystem at /data.
+      Use it to read, write, and manage files.
+  
+  # Git MCP Server
+  git:
+    type: sse
+    url: "http://mcp-gateway:8006/sse"
+    serverInstructions: |
+      This MCP server provides Git operations.
+      Use it to manage repositories, commits, branches, etc.
+  
+  # Docker MCP Server
+  docker:
+    type: sse
+    url: "http://mcp-gateway:8007/sse"
+    serverInstructions: |
+      This MCP server provides Docker operations.
+      Use it to manage containers, images, volumes, etc.
+  
+  # SQLite MCP Server
+  sqlite:
+    type: sse
+    url: "http://mcp-gateway:8008/sse"
+    serverInstructions: |
+      This MCP server provides SQLite database operations.
+      Use it to query and manage SQLite databases.
+  
+  # Calculator MCP Server
+  calculator:
+    type: sse
+    url: "http://mcp-gateway:8009/sse"
+    serverInstructions: |
+      This MCP server provides calculator functionality.
+      Use it for mathematical calculations.
+
+# General LibreChat configuration (partial)
+general:
+  # ... other LibreChat configuration ...
+
+# OpenAI-compatible endpoints
+endpoints:
+  - name: "openai"
+    apiKey: "${OPENAI_API_KEY}"
+    baseURL: "https://api.openai.com/v1"
+    models:
+      default: ["gpt-4-turbo-preview", "gpt-3.5-turbo"]
+    titleConvo: true
+    titleModel: "gpt-3.5-turbo"
+
+# UI Configuration
+interface:
+  # ... UI settings ...
+
+# Note: This is just an example configuration.
+# For full LibreChat configuration options, see:
+# https://www.librechat.ai/docs/configuration/librechat_yaml
