@@ -1,0 +1,13 @@
+# .dockerignore
+.git
+.gitignore
+README.md
+*.md
+*.log
+logs/
+node_modules/
+.DS_Store
+.vscode/
+.idea/
+docker-compose.example.yml
+librechat.yaml.example
