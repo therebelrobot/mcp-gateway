@@ -1,0 +1,64 @@
+# MCP Servers Configuration
+# This file defines which MCP servers to run and their configurations
+#
+# Each server should have:
+#   - name: unique identifier (used for process management)
+#   - command: the command to run the MCP server (via stdio)
+#   - port: the port Supergateway will listen on for this server
+#   - env: optional environment variables (will be passed to the command)
+#   - volumes: optional volume mounts (only applicable if running docker commands)
+
+servers:
+  # Example: Brave Search MCP Server
+  brave-search:
+    command: "npx -y @modelcontextprotocol/server-brave-search"
+    port: 8003
+    env:
+      BRAVE_API_KEY: ${BRAVE_API_KEY}  # Set via environment variable
+  
+  # Example: EMQX MCP Server (requires Docker socket access)
+  emqx:
+    command: "docker run -i --rm -e EMQX_API_URL=${EMQX_API_URL} -e EMQX_API_KEY=${EMQX_API_KEY} -e EMQX_API_SECRET=${EMQX_API_SECRET} benniuji/emqx-mcp-server"
+    port: 8004
+    requires_docker: true
+  
+  # Example: Filesystem MCP Server
+  filesystem:
+    command: "npx -y @modelcontextprotocol/server-filesystem /data"
+    port: 8005
+    volumes:
+      - /data:/data
+  
+  # Example: Git MCP Server
+  git:
+    command: "uvx mcp-server-git"
+    port: 8006
+  
+  # Example: Docker MCP Server
+  docker:
+    command: "uvx mcp-server-docker"
+    port: 8007
+    requires_docker: true
+  
+  # Example: SQLite MCP Server
+  sqlite:
+    command: "uvx mcp-server-sqlite"
+    port: 8008
+  
+  # Example: Calculator MCP Server
+  calculator:
+    command: "npx -y @modelcontextprotocol/server-calculator"
+    port: 8009
+
+# Global configuration
+supergateway:
+  # Base URL for SSE endpoints (used by LibreChat)
+  base_url: "http://localhost"
+  # CORS settings
+  cors: true
+  # Health endpoint path
+  health_endpoint: "/healthz"
+  # SSE path (default: /sse)
+  sse_path: "/sse"
+  # Message path (default: /message)
+  message_path: "/message"
