@@ -1,0 +1,96 @@
+version: '3.4'
+
+services:
+  # MCP Gateway - runs multiple MCP servers in a single container
+  mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"  # Brave Search
+      - "8004:8004"  # EMQX
+      - "8005:8005"  # Filesystem
+      - "8006:8006"  # Git
+      - "8007:8007"  # Docker
+      - "8008:8008"  # SQLite
+      - "8009:8009"  # Calculator
+    networks:
+      - librechat_default
+    environment:
+      # Brave Search API key
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      
+      # EMQX credentials
+      - EMQX_API_URL=${EMQX_API_URL:-https://your-emqx-cloud-instance.com:8443/api/v5}
+      - EMQX_API_KEY=${EMQX_API_KEY}
+      - EMQX_API_SECRET=${EMQX_API_SECRET}
+      
+      # Add other environment variables for your MCP servers here
+    volumes:
+      # Mount Docker socket if any MCP server needs Docker access
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      # Mount local directories for filesystem access
+      - ./data:/data
+      
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      
+      # Mount custom configuration (optional)
+      # - ./custom-mcp-servers.yaml:/app/mcp-servers.yaml
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # LibreChat API service (example integration)
+  librechat-api:
+    image: ghcr.io/danny-avila/librechat-dev:latest
+    container_name: LibreChat
+    ports:
+      - "3080:3080"
+    depends_on:
+      - mongodb
+      - rag_api
+      - mcp-gateway
+    networks:
+      - librechat_default
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3080
+      - MONGO_URI=mongodb://mongodb:27017/LibreChat
+      - RAG_API_URL=http://rag_api:8080
+    volumes:
+      # Mount librechat.yaml configuration
+      - ./librechat.yaml:/app/librechat.yaml
+      # Mount Docker socket if you need to run Docker commands from LibreChat
+      # - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - librechat_default
+
+  # RAG API (optional)
+  rag_api:
+    image: ghcr.io/danny-avila/librechat-rag-api:latest
+    container_name: rag_api
+    restart: unless-stopped
+    networks:
+      - librechat_default
+
+networks:
+  librechat_default:
+    driver: bridge
+
+volumes:
+  mongodb_data:
